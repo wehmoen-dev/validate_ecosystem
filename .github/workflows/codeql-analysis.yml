@@ -32,6 +32,9 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
 
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+
       - name: Initialize CodeQL
         id: initialize
         uses: github/codeql-action/init@v3
