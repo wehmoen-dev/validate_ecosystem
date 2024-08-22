@@ -1,0 +1,35 @@
+name: 'Ronin Ecosystem Validator'
+description:
+  'Verifies the integrity of submissions to the ronin ecosystem repository'
+author: 'Nico Wehmöller'
+
+branding:
+  icon: 'file'
+  color: 'gray-dark'
+
+# Define your inputs here.
+inputs:
+  github_token:
+    description: 'The GitHub token to authenticate API requests'
+    required: true
+  validator_version:
+    description: 'The version of the validator to use'
+    required: true
+    default: 'latest'
+  slack_webhook_url:
+    description: 'Slack webhook URL for TDS notifications.'
+    required: true
+  buddy_installation_id:
+    description: 'The installation ID of the buddy app'
+    required: true
+  buddy_app_id:
+    description: 'The app ID of the buddy app'
+    required: true
+    default: '977121'
+  buddy_private_key:
+    description: 'The private key of the buddy app'
+    required: true
+
+runs:
+  using: node20
+  main: dist/index.js
