@@ -72103,17 +72103,16 @@ async function getPRChanges(customHeadRef, customBaseRef) {
         ? customBaseRef
         : github_1.context.payload.pull_request?.base.ref; // e.g., "master"
     core.info(`Comparing ${baseBranch} with ${headBranch}`);
-    const response = await octokit.rest.repos.compareCommits({
+    const response = await octokit.rest.pulls.listFiles({
         owner, // Owner of the base repo, e.g., "wehmoen"
         repo, // Name of the base repo, e.g., "projects-demo"
-        base: baseBranch, // Base branch in your repository, e.g., "master"
-        head: headBranch // Head branch in the fork, e.g., "ytpixelcowboy:addAxieBuddy"
+        pull_number: github_1.context.payload.pull_request?.number // Number of the PR, e.g., 1
     });
-    if (!response.data.files) {
+    if (!response.data) {
         return [[], null];
     }
     const projectMap = {};
-    for (const file of response.data.files || []) {
+    for (const file of response.data || []) {
         // Not a file in projects folder - ignore
         if (!file.filename.startsWith('projects/')) {
             continue;
