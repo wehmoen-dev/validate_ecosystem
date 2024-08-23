@@ -33,6 +33,8 @@ export async function getPRChanges(
     ? customBaseRef
     : context.payload.pull_request?.base.ref
 
+  core.info(`Comparing ${baseBranch} with ${headBranch}`)
+
   const response = await octokit.rest.repos.compareCommits({
     owner,
     repo,

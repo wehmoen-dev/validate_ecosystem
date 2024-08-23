@@ -72102,6 +72102,7 @@ async function getPRChanges(customHeadRef, customBaseRef) {
     const baseBranch = customBaseRef
         ? customBaseRef
         : github_1.context.payload.pull_request?.base.ref;
+    core.info(`Comparing ${baseBranch} with ${headBranch}`);
     const response = await octokit.rest.repos.compareCommits({
         owner,
         repo,
@@ -72843,8 +72844,6 @@ async function installValidator(version) {
 }
 async function validateDataJson(project) {
     try {
-        const out = await exec.getExecOutput('ls', ['projects']);
-        core.info(out.stdout + out.stderr);
         const validationResult = await exec.getExecOutput(VALIDATOR_EXECUTABLE, ['-input', `projects/${project}/data.json`], { silent: false });
         return validationResult.stdout;
     }
