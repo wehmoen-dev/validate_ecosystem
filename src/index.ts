@@ -13,6 +13,7 @@ export async function run(): Promise<void> {
 
   switch (context.eventName) {
     case 'pull_request':
+    case 'pull_request_target':
       const details = await getPRDetails()
       if (!details.merged && details.state !== 'closed') {
         await runPR()

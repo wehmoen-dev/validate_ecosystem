@@ -72029,6 +72029,7 @@ async function run() {
     const context = github.context;
     switch (context.eventName) {
         case 'pull_request':
+        case 'pull_request_target':
             const details = await (0, pr_2.getPRDetails)();
             if (!details.merged && details.state !== 'closed') {
                 await (0, pr_1.runPR)();
@@ -72199,7 +72200,8 @@ exports.requirePullRequest = requirePullRequest;
 const github = __importStar(__nccwpck_require__(5438));
 const core = __importStar(__nccwpck_require__(2186));
 function requirePullRequest() {
-    if (github.context.eventName !== 'pull_request') {
+    if (github.context.eventName !== 'pull_request' &&
+        github.context.eventName !== 'pull_request_target') {
         core.setFailed('This action can only be run on pull requests');
         process.exit(1);
     }
