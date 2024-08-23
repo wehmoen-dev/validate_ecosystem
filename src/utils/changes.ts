@@ -26,12 +26,15 @@ export async function getPRChanges(
   const { owner, repo } = github.context.repo
   const octokit = await getOctokit()
 
+  const headRepo = context.payload.pull_request?.head.repo.full_name
   const headBranch = customHeadRef
     ? customHeadRef
-    : context.payload.pull_request?.head.ref
+    : `${headRepo}:${context.payload.pull_request?.head.ref}`
+
+  const baseRepo = context.payload.pull_request?.base.repo.full_name
   const baseBranch = customBaseRef
     ? customBaseRef
-    : context.payload.pull_request?.base.ref
+    : `${baseRepo}:${context.payload.pull_request?.base.ref}`
 
   core.info(`Comparing ${baseBranch} with ${headBranch}`)
 
