@@ -51,15 +51,15 @@ export async function getPRChanges(): Promise<[ProjectChange[], Error | null]> {
   const { owner, repo } = github.context.repo
   const octokit = await getOctokit()
 
-  const response = await getAllPullRequestFiles()
+  const files = await getAllPullRequestFiles()
 
-  if (!response.data) {
+  if (!files || files.length === 0) {
     return [[], null]
   }
 
   const projectMap: { [key: string]: ProjectChange } = {}
 
-  for (const file of response.data || []) {
+  for (const file of files || []) {
     // Not a file in projects folder - ignore
     if (!file.filename.startsWith('projects/')) {
       core.info(`Ignoring file: ${file.filename}`)

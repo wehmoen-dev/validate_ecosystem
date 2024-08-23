@@ -72082,11 +72082,32 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getPRChanges = getPRChanges;
 const github = __importStar(__nccwpck_require__(5438));
-const github_1 = __nccwpck_require__(5438);
 const core = __importStar(__nccwpck_require__(2186));
 const nodePath = __importStar(__nccwpck_require__(1017));
 const octokit_1 = __nccwpck_require__(3409);
 const allowedFileNames = ['data.json', 'logo.png'];
+const context = github.context;
+async function getAllPullRequestFiles() {
+    const { owner, repo } = context.repo;
+    const pull_number = context.payload.pull_request?.number;
+    const octokit = await (0, octokit_1.getOctokit)();
+    const perPage = 100; // Max allowed by GitHub API
+    let page = 1;
+    let allFiles = [];
+    let response;
+    do {
+        response = await octokit.rest.pulls.listFiles({
+            owner,
+            repo,
+            pull_number,
+            per_page: perPage,
+            page
+        });
+        allFiles = allFiles.concat(response.data);
+        page++;
+    } while (response.data.length === perPage);
+    return allFiles;
+}
 /**
  * Get all projects that have data.json or logo.png changes in the PR
  * @param token GitHub token
@@ -72096,16 +72117,12 @@ async function getPRChanges() {
     core.info('Getting PR changes...');
     const { owner, repo } = github.context.repo;
     const octokit = await (0, octokit_1.getOctokit)();
-    const response = await octokit.rest.pulls.listFiles({
-        owner,
-        repo,
-        pull_number: github_1.context.payload.pull_request?.number // Number of the PR, e.g., 1
-    });
-    if (!response.data) {
+    const files = await getAllPullRequestFiles();
+    if (!files || files.length === 0) {
         return [[], null];
     }
     const projectMap = {};
-    for (const file of response.data || []) {
+    for (const file of files || []) {
         // Not a file in projects folder - ignore
         if (!file.filename.startsWith('projects/')) {
             core.info(`Ignoring file: ${file.filename}`);
