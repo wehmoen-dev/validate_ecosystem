@@ -1,16 +1,44 @@
 import * as github from '@actions/github'
-import { context } from '@actions/github'
 import * as core from '@actions/core'
 import * as nodePath from 'path'
 import { getOctokit } from './octokit'
 
 const allowedFileNames = ['data.json', 'logo.png']
 
+const context = github.context
+
 export type ProjectChange = {
   project: string
   isNew: boolean
   dataJson: boolean
   logo: boolean
+}
+
+async function getAllPullRequestFiles() {
+  const { owner, repo } = context.repo
+  const pull_number = context.payload.pull_request?.number!
+
+  const octokit = await getOctokit()
+
+  const perPage = 100 // Max allowed by GitHub API
+  let page = 1
+  let allFiles: Array<any> = []
+  let response
+
+  do {
+    response = await octokit.rest.pulls.listFiles({
+      owner,
+      repo,
+      pull_number,
+      per_page: perPage,
+      page
+    })
+
+    allFiles = allFiles.concat(response.data)
+    page++
+  } while (response.data.length === perPage)
+
+  return allFiles
 }
 
 /**
@@ -23,11 +51,7 @@ export async function getPRChanges(): Promise<[ProjectChange[], Error | null]> {
   const { owner, repo } = github.context.repo
   const octokit = await getOctokit()
 
-  const response = await octokit.rest.pulls.listFiles({
-    owner,
-    repo,
-    pull_number: context.payload.pull_request?.number! // Number of the PR, e.g., 1
-  })
+  const response = await getAllPullRequestFiles()
 
   if (!response.data) {
     return [[], null]
