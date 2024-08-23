@@ -72843,7 +72843,7 @@ async function installValidator(version) {
 }
 async function validateDataJson(project) {
     try {
-        const out = await exec.getExecOutput('ls', ['projects/**']);
+        const out = await exec.getExecOutput('ls', ['**']);
         core.info(out.stdout + out.stderr);
         const validationResult = await exec.getExecOutput(VALIDATOR_EXECUTABLE, ['-input', `projects/${project}/data.json`], { silent: false });
         return validationResult.stdout;
