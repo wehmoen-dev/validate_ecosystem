@@ -49,7 +49,7 @@ export async function installValidator(version: string) {
 
 export async function validateDataJson(project: string) {
   try {
-    const out = await exec.getExecOutput('ls', ['.'])
+    const out = await exec.getExecOutput('ls', ['projects'])
     core.info(out.stdout + out.stderr)
     const validationResult = await exec.getExecOutput(
       VALIDATOR_EXECUTABLE,
