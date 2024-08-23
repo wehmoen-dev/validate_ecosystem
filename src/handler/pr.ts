@@ -150,7 +150,11 @@ export async function runPR() {
   }
 
   const finalReviewString = render('pr_validated', {
-    RESULTS: projectResultString.join('\n')
+    RESULTS: projectResultString.join('\n'),
+    NOTES:
+      results.length > 1
+        ? '**Note**: We strongly recommend to submit only one project per PR to make the review process easier and faster.'
+        : ''
   })
 
   const status = results.every(

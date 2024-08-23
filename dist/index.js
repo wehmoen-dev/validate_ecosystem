@@ -71974,7 +71974,10 @@ async function runPR() {
         }));
     }
     const finalReviewString = (0, templates_1.render)('pr_validated', {
-        RESULTS: projectResultString.join('\n')
+        RESULTS: projectResultString.join('\n'),
+        NOTES: results.length > 1
+            ? '**Note**: We strongly recommend to submit only one project per PR to make the review process easier and faster.'
+            : ''
     });
     const status = results.every(result => result.dataJson.success && result.logo.success)
         ? 'success'
@@ -72747,6 +72750,8 @@ exports.template = `🎉 **Thank you for your submission!** 🎉
 We appreciate your contribution and the effort you've put into your PR. As part of our automated workflow, we've run a series of checks and tests on your submission. Below you'll find the results:
 
 {{ RESULTS }}
+
+{{ NOTES }}
 
 Please review the results above. If there are any issues, feel free to address them in this PR. Let us know if you need any help or clarification. We're here to help!
 

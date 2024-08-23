@@ -4,6 +4,8 @@ We appreciate your contribution and the effort you've put into your PR. As part 
 
 {{ RESULTS }}
 
+{{ NOTES }}
+
 Please review the results above. If there are any issues, feel free to address them in this PR. Let us know if you need any help or clarification. We're here to help!
 
 Thank you again for contributing to our project! We look forward to collaborating with you.
