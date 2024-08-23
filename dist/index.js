@@ -71744,7 +71744,7 @@ async function mergedPr() {
         process.exit(1);
     }
     const parentCommitSha = parentCommits[0].sha;
-    const [changes, error] = await (0, changes_1.getPRChanges)(mergeSha, parentCommitSha);
+    const [changes, error] = await (0, changes_1.getPRChanges)();
     if (changes.length == 0) {
         if (error) {
             core.setFailed(error.message);
@@ -72092,20 +72092,13 @@ const allowedFileNames = ['data.json', 'logo.png'];
  * @param token GitHub token
  * @returns List of projects that have data.json or logo.png changes
  */
-async function getPRChanges(customHeadRef, customBaseRef) {
+async function getPRChanges() {
     core.info('Getting PR changes...');
     const { owner, repo } = github.context.repo;
     const octokit = await (0, octokit_1.getOctokit)();
-    const headBranch = customHeadRef
-        ? customHeadRef
-        : `${github_1.context.payload.pull_request?.head.repo.owner.login}:${github_1.context.payload.pull_request?.head.ref}`; // e.g., "ytpixelcowboy:addAxieBuddy"
-    const baseBranch = customBaseRef
-        ? customBaseRef
-        : github_1.context.payload.pull_request?.base.ref; // e.g., "master"
-    core.info(`Comparing ${baseBranch} with ${headBranch}`);
     const response = await octokit.rest.pulls.listFiles({
-        owner, // Owner of the base repo, e.g., "wehmoen"
-        repo, // Name of the base repo, e.g., "projects-demo"
+        owner,
+        repo,
         pull_number: github_1.context.payload.pull_request?.number // Number of the PR, e.g., 1
     });
     if (!response.data) {
@@ -72115,6 +72108,7 @@ async function getPRChanges(customHeadRef, customBaseRef) {
     for (const file of response.data || []) {
         // Not a file in projects folder - ignore
         if (!file.filename.startsWith('projects/')) {
+            core.info(`Ignoring file: ${file.filename}`);
             continue;
         }
         // Split file path to get project name

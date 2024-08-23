@@ -41,7 +41,7 @@ export async function mergedPr() {
 
   const parentCommitSha = parentCommits[0].sha
 
-  const [changes, error] = await getPRChanges(mergeSha, parentCommitSha)
+  const [changes, error] = await getPRChanges()
 
   if (changes.length == 0) {
     if (error) {

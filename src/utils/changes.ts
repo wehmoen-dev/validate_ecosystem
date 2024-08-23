@@ -18,27 +18,14 @@ export type ProjectChange = {
  * @param token GitHub token
  * @returns List of projects that have data.json or logo.png changes
  */
-export async function getPRChanges(
-  customHeadRef?: string,
-  customBaseRef?: string
-): Promise<[ProjectChange[], Error | null]> {
+export async function getPRChanges(): Promise<[ProjectChange[], Error | null]> {
   core.info('Getting PR changes...')
   const { owner, repo } = github.context.repo
   const octokit = await getOctokit()
 
-  const headBranch = customHeadRef
-    ? customHeadRef
-    : `${context.payload.pull_request?.head.repo.owner.login}:${context.payload.pull_request?.head.ref}` // e.g., "ytpixelcowboy:addAxieBuddy"
-
-  const baseBranch = customBaseRef
-    ? customBaseRef
-    : context.payload.pull_request?.base.ref // e.g., "master"
-
-  core.info(`Comparing ${baseBranch} with ${headBranch}`)
-
   const response = await octokit.rest.pulls.listFiles({
-    owner, // Owner of the base repo, e.g., "wehmoen"
-    repo, // Name of the base repo, e.g., "projects-demo"
+    owner,
+    repo,
     pull_number: context.payload.pull_request?.number! // Number of the PR, e.g., 1
   })
 
@@ -51,6 +38,7 @@ export async function getPRChanges(
   for (const file of response.data || []) {
     // Not a file in projects folder - ignore
     if (!file.filename.startsWith('projects/')) {
+      core.info(`Ignoring file: ${file.filename}`)
       continue
     }
 
