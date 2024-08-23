@@ -35,6 +35,7 @@ async function getAllPullRequestFiles() {
     })
 
     allFiles = allFiles.concat(response.data)
+    core.info(`Getting PR files: ${allFiles.length}`)
     page++
   } while (response.data.length === perPage)
 
