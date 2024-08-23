@@ -52,7 +52,7 @@ export async function validateDataJson(project: string) {
     const validationResult = await exec.getExecOutput(
       VALIDATOR_EXECUTABLE,
       ['-input', `projects/${project}/data.json`],
-      { silent: true }
+      { silent: false }
     )
     return validationResult.stdout
   } catch (e: any) {
