@@ -71890,6 +71890,15 @@ async function runPR() {
     if (context.payload.pull_request.base.ref !== 'master') {
         core.warning('Pull request is not targeting master branch!');
     }
+    if (await (0, changes_1.prTooBig)()) {
+        await (0, review_1.requestChangesPR)((0, templates_1.render)('generic_error', {
+            MESSAGE: `🚨 Something went wrong 🚨\n\nThis pull request is too big for an automated review. Please limit the number of files changed in a single PR.\nIf you need to make a large change, consider breaking it up into smaller PRs.`
+        }));
+        await (0, review_1.removeApproval)();
+        await (0, labels_1.setLabel)('validation-failed');
+        core.setFailed('This PR introduces too many changes. Please limit the number of changes introduced in a single PR. (Max number of changed filed exceeded: 3000)');
+        return;
+    }
     const [changes, error] = await (0, changes_1.getPRChanges)();
     if (changes.length === 0 && error === null) {
         core.info('No changes detected. Nothing todo! 🎉');
@@ -72081,13 +72090,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.prTooBig = prTooBig;
 exports.getPRChanges = getPRChanges;
 const github = __importStar(__nccwpck_require__(5438));
 const core = __importStar(__nccwpck_require__(2186));
 const nodePath = __importStar(__nccwpck_require__(1017));
 const octokit_1 = __nccwpck_require__(3409);
+const pr_1 = __nccwpck_require__(3619);
 const allowedFileNames = ['data.json', 'logo.png'];
 const context = github.context;
+const MAX_PR_FILES = 3000; // Max allowed by GitHub API
+async function prTooBig() {
+    const details = await (0, pr_1.getPRDetails)();
+    const changedFiles = details.changed_files;
+    return changedFiles > MAX_PR_FILES;
+}
 async function getAllPullRequestFiles() {
     const { owner, repo } = context.repo;
     const pull_number = context.payload.pull_request?.number;

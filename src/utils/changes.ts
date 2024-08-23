@@ -2,6 +2,7 @@ import * as github from '@actions/github'
 import * as core from '@actions/core'
 import * as nodePath from 'path'
 import { getOctokit } from './octokit'
+import { getPRDetails } from './pr'
 
 const allowedFileNames = ['data.json', 'logo.png']
 
@@ -12,6 +13,14 @@ export type ProjectChange = {
   isNew: boolean
   dataJson: boolean
   logo: boolean
+}
+
+const MAX_PR_FILES = 3000 // Max allowed by GitHub API
+
+export async function prTooBig(): Promise<boolean> {
+  const details = await getPRDetails()
+  const changedFiles = details.changed_files
+  return changedFiles > MAX_PR_FILES
 }
 
 async function getAllPullRequestFiles() {

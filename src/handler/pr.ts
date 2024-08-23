@@ -5,7 +5,7 @@ import {
   validateDataJson,
   validateLogo
 } from '../utils/validate'
-import { getPRChanges } from '../utils/changes'
+import { getPRChanges, prTooBig } from '../utils/changes'
 import { addLabelIfNotexists, setLabel } from '../utils/labels'
 import * as github from '@actions/github'
 import { render } from '../utils/templates'
@@ -34,6 +34,21 @@ export async function runPR() {
 
   if (context.payload.pull_request!.base.ref !== 'master') {
     core.warning('Pull request is not targeting master branch!')
+  }
+
+  if (await prTooBig()) {
+    await requestChangesPR(
+      render('generic_error', {
+        MESSAGE: `🚨 Something went wrong 🚨\n\nThis pull request is too big for an automated review. Please limit the number of files changed in a single PR.\nIf you need to make a large change, consider breaking it up into smaller PRs.`
+      })
+    )
+
+    await removeApproval()
+    await setLabel('validation-failed')
+    core.setFailed(
+      'This PR introduces too many changes. Please limit the number of changes introduced in a single PR. (Max number of changed filed exceeded: 3000)'
+    )
+    return
   }
 
   const [changes, error] = await getPRChanges()
