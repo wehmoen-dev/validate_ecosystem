@@ -26,23 +26,21 @@ export async function getPRChanges(
   const { owner, repo } = github.context.repo
   const octokit = await getOctokit()
 
-  const headRepo = context.payload.pull_request?.head.repo.full_name
   const headBranch = customHeadRef
     ? customHeadRef
-    : `${headRepo}:${context.payload.pull_request?.head.ref}`
+    : `${context.payload.pull_request?.head.repo.owner.login}:${context.payload.pull_request?.head.ref}` // e.g., "ytpixelcowboy:addAxieBuddy"
 
-  const baseRepo = context.payload.pull_request?.base.repo.full_name
   const baseBranch = customBaseRef
     ? customBaseRef
-    : `${baseRepo}:${context.payload.pull_request?.base.ref}`
+    : context.payload.pull_request?.base.ref // e.g., "master"
 
   core.info(`Comparing ${baseBranch} with ${headBranch}`)
 
   const response = await octokit.rest.repos.compareCommits({
-    owner,
-    repo,
-    base: baseBranch,
-    head: headBranch
+    owner, // Owner of the base repo, e.g., "wehmoen"
+    repo, // Name of the base repo, e.g., "projects-demo"
+    base: baseBranch, // Base branch in your repository, e.g., "master"
+    head: headBranch // Head branch in the fork, e.g., "ytpixelcowboy:addAxieBuddy"
   })
 
   if (!response.data.files) {

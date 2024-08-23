@@ -72096,20 +72096,18 @@ async function getPRChanges(customHeadRef, customBaseRef) {
     core.info('Getting PR changes...');
     const { owner, repo } = github.context.repo;
     const octokit = await (0, octokit_1.getOctokit)();
-    const headRepo = github_1.context.payload.pull_request?.head.repo.full_name;
     const headBranch = customHeadRef
         ? customHeadRef
-        : `${headRepo}:${github_1.context.payload.pull_request?.head.ref}`;
-    const baseRepo = github_1.context.payload.pull_request?.base.repo.full_name;
+        : `${github_1.context.payload.pull_request?.head.repo.owner.login}:${github_1.context.payload.pull_request?.head.ref}`; // e.g., "ytpixelcowboy:addAxieBuddy"
     const baseBranch = customBaseRef
         ? customBaseRef
-        : `${baseRepo}:${github_1.context.payload.pull_request?.base.ref}`;
+        : github_1.context.payload.pull_request?.base.ref; // e.g., "master"
     core.info(`Comparing ${baseBranch} with ${headBranch}`);
     const response = await octokit.rest.repos.compareCommits({
-        owner,
-        repo,
-        base: baseBranch,
-        head: headBranch
+        owner, // Owner of the base repo, e.g., "wehmoen"
+        repo, // Name of the base repo, e.g., "projects-demo"
+        base: baseBranch, // Base branch in your repository, e.g., "master"
+        head: headBranch // Head branch in the fork, e.g., "ytpixelcowboy:addAxieBuddy"
     });
     if (!response.data.files) {
         return [[], null];
