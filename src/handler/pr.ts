@@ -48,8 +48,8 @@ export async function runPR() {
   const mainComment = await comments(context.issue.number, render('pr_created'))
 
   if (error) {
-    await edit(
-      mainComment.id,
+    await remove(mainComment.id)
+    await requestChangesPR(
       render('generic_error', {
         MESSAGE: `🚨 Something went wrong 🚨\n\n` + error.message
       })

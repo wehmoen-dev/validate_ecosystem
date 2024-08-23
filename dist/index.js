@@ -71898,7 +71898,8 @@ async function runPR() {
     await (0, labels_1.setLabel)('validation-pending');
     const mainComment = await (0, comments_1.comments)(context.issue.number, (0, templates_1.render)('pr_created'));
     if (error) {
-        await (0, comments_1.edit)(mainComment.id, (0, templates_1.render)('generic_error', {
+        await (0, comments_1.remove)(mainComment.id);
+        await (0, review_1.requestChangesPR)((0, templates_1.render)('generic_error', {
             MESSAGE: `🚨 Something went wrong 🚨\n\n` + error.message
         }));
         await (0, review_1.removeApproval)();
