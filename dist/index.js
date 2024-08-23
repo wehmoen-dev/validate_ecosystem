@@ -72098,15 +72098,16 @@ async function getPRChanges(customHeadRef, customBaseRef) {
     const octokit = await (0, octokit_1.getOctokit)();
     const headBranch = customHeadRef
         ? customHeadRef
-        : github_1.context.payload.pull_request?.head.ref;
+        : `${github_1.context.payload.pull_request?.head.repo.owner.login}:${github_1.context.payload.pull_request?.head.ref}`; // e.g., "ytpixelcowboy:addAxieBuddy"
     const baseBranch = customBaseRef
         ? customBaseRef
-        : github_1.context.payload.pull_request?.base.ref;
+        : github_1.context.payload.pull_request?.base.ref; // e.g., "master"
+    core.info(`Comparing ${baseBranch} with ${headBranch}`);
     const response = await octokit.rest.repos.compareCommits({
-        owner,
-        repo,
-        base: baseBranch,
-        head: headBranch
+        owner, // Owner of the base repo, e.g., "wehmoen"
+        repo, // Name of the base repo, e.g., "projects-demo"
+        base: baseBranch, // Base branch in your repository, e.g., "master"
+        head: headBranch // Head branch in the fork, e.g., "ytpixelcowboy:addAxieBuddy"
     });
     if (!response.data.files) {
         return [[], null];
@@ -72843,8 +72844,6 @@ async function installValidator(version) {
 }
 async function validateDataJson(project) {
     try {
-        const out = await exec.getExecOutput('ls', ['projects']);
-        core.info(out.stdout + out.stderr);
         const validationResult = await exec.getExecOutput(VALIDATOR_EXECUTABLE, ['-input', `projects/${project}/data.json`], { silent: false });
         return validationResult.stdout;
     }
